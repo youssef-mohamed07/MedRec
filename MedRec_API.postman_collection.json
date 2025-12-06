@@ -1,0 +1,554 @@
+{
+	"info": {
+		"_postman_id": "medrec-api-collection",
+		"name": "MedRec API",
+		"description": "Complete API collection for MedRec - Medical Records Management System with AI-powered image analysis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.tokens.access);",
+									"    pm.environment.set(\"refresh_token\", jsonData.tokens.refresh);",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.tokens.access);",
+									"    pm.collectionVariables.set(\"refresh_token\", jsonData.tokens.refresh);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"SecurePass123!\",\n    \"password2\": \"SecurePass123!\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "Register a new user account. Returns user details and JWT tokens."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access);",
+									"    pm.environment.set(\"refresh_token\", jsonData.refresh);",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"SecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "Login with username and password. Returns JWT access and refresh tokens."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/logout/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout",
+								""
+							]
+						},
+						"description": "Logout by blacklisting the refresh token. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access);",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token/refresh/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token",
+								"refresh",
+								""
+							]
+						},
+						"description": "Refresh the access token using the refresh token."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{access_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token/verify/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token",
+								"verify",
+								""
+							]
+						},
+						"description": "Verify if a token is valid."
+					},
+					"response": []
+				}
+			],
+			"description": "User registration, login, logout and token management endpoints."
+		},
+		{
+			"name": "Profile Management",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								""
+							]
+						},
+						"description": "Get current user's profile information. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newemail@example.com\",\n    \"first_name\": \"Updated\",\n    \"last_name\": \"Name\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/update/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"update",
+								""
+							]
+						},
+						"description": "Update user profile information (email, first name, last name). Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/update/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"update",
+								""
+							]
+						},
+						"description": "Partially update user profile information. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "User profile retrieval and update endpoints."
+		},
+		{
+			"name": "Password Management",
+			"item": [
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"SecurePass123!\",\n    \"new_password\": \"NewSecurePass456!\",\n    \"new_password2\": \"NewSecurePass456!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/password/change/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"password",
+								"change",
+								""
+							]
+						},
+						"description": "Change password for authenticated user. Requires old password."
+					},
+					"response": []
+				},
+				{
+					"name": "Password Reset Request",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/password/reset/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"password",
+								"reset",
+								""
+							]
+						},
+						"description": "Request a password reset. Generates a reset token and uid. In production, this would be sent via email."
+					},
+					"response": []
+				},
+				{
+					"name": "Password Reset Confirm",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"new_password\": \"ResetPassword123!\",\n    \"new_password2\": \"ResetPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/password/reset/confirm/<uidb64>/<token>/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"password",
+								"reset",
+								"confirm",
+								"<uidb64>",
+								"<token>",
+								""
+							]
+						},
+						"description": "Confirm password reset using the uid and token from the reset request. Replace <uidb64> and <token> with actual values."
+					},
+					"response": []
+				}
+			],
+			"description": "Password change and reset endpoints."
+		},
+		{
+			"name": "Account Management",
+			"item": [
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"SecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/delete/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"delete",
+								""
+							]
+						},
+						"description": "Permanently delete user account. Requires password confirmation."
+					},
+					"response": []
+				}
+			],
+			"description": "Account deletion endpoint."
+		},
+		{
+			"name": "Image Uploads",
+			"item": [
+				{
+					"name": "Upload Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/uploads/new/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"uploads",
+								"new",
+								""
+							]
+						},
+						"description": "Upload a medical image for AI analysis. The image will be processed and results stored. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "List Uploads",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/uploads/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"uploads",
+								""
+							]
+						},
+						"description": "Get list of all images uploaded by the authenticated user. Returns results ordered by creation date (newest first)."
+					},
+					"response": []
+				}
+			],
+			"description": "Medical image upload and retrieval with AI-powered analysis."
+		}
+	]
+}
