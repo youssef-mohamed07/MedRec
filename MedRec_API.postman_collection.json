@@ -549,6 +549,162 @@
 				}
 			],
 			"description": "Medical image upload and retrieval with AI-powered analysis."
+		},
+		{
+			"name": "Medicines",
+			"item": [
+				{
+					"name": "List Medicines",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/medicines/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicines",
+								""
+							]
+						},
+						"description": "Get list of all active medicines. Supports search, filtering and ordering. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "List Medicines with Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/medicines/?search=paracetamol",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicines",
+								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "paracetamol",
+									"description": "Search in code, name_ar, name_en, scientific_name, category"
+								}
+							]
+						},
+						"description": "Search medicines by code, Arabic name, English name, scientific name, or category. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "List Medicines by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/medicines/?category=painkillers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicines",
+								""
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "painkillers",
+									"description": "Filter by medicine category"
+								}
+							]
+						},
+						"description": "Filter medicines by category. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "List Medicines with Ordering",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/medicines/?ordering=-price",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicines",
+								""
+							],
+							"query": [
+								{
+									"key": "ordering",
+									"value": "-price",
+									"description": "Order by: name_ar, name_en, price, created_at (prefix with - for descending)"
+								}
+							]
+						},
+						"description": "Get medicines ordered by specified field. Supports ordering by name_ar, name_en, price, or created_at. Use - prefix for descending order. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Medicine Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/medicines/MED001/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicines",
+								"MED001",
+								""
+							]
+						},
+						"description": "Get detailed information about a specific medicine by its code. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Medicines",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/medicines/search/?q=aspirin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"medicines",
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "aspirin",
+									"description": "Search query for code, name_ar, name_en, or scientific_name"
+								}
+							]
+						},
+						"description": "Search medicines by query string. Searches in code, Arabic name, English name, and scientific name. Returns up to 20 results. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Medicine database endpoints for listing, searching, filtering, and retrieving medicine information."
 		}
 	]
 }
