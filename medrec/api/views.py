@@ -44,7 +44,9 @@ class MedicineSearchView(generics.ListAPIView):
                 Q(code__icontains=query) |
                 Q(name_ar__icontains=query) |
                 Q(name_en__icontains=query) |
-                Q(scientific_name__icontains=query)
+                Q(scientific_name__icontains=query) |
+                Q(active_ingredients__icontains=query) |
+                Q(alternatives__icontains=query)
             ).filter(is_active=True)[:20]
         return Medicine.objects.none()
 
@@ -94,3 +96,105 @@ class ImageUploadListView(generics.ListAPIView):
 
     def get_queryset(self):
         return ImageUpload.objects.filter(uploaded_by=self.request.user).order_by('-created_at')
+
+class ImageUploadDetailView(generics.RetrieveDestroyAPIView):
+    "`"`"Get or delete a specific upload/scan for the current user"`"`"
+    serializer_class = ImageUploadSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return ImageUpload.objects.filter(uploaded_by=self.request.user)
+
+class MedicineAlternativesView(generics.ListAPIView):
+    "`"`"Find alternative medicines based on exact active ingredients"`"`"
+    serializer_class = MedicineListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        code = self.kwargs.get('code')
+        try:
+            base_medicine = Medicine.objects.get(code=code, is_active=True)
+            # Find others with the exact same active ingredients (excluding itself)
+            if base_medicine.active_ingredients:
+                return Medicine.objects.filter(
+                    active_ingredients=base_medicine.active_ingredients,
+                    is_active=True
+                ).exclude(code=code)
+            return Medicine.objects.none()
+        except Medicine.DoesNotExist:
+            return Medicine.objects.none()
+
+class MedicineActiveIngredientsView(generics.ListAPIView):
+    "`"`"Search medicines strictly by their active ingredients"`"`"
+    serializer_class = MedicineListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        ingredient = self.kwargs.get('ingredient', '')
+        if ingredient:
+            return Medicine.objects.filter(
+                active_ingredients__icontains=ingredient,
+                is_active=True
+            )
+        return Medicine.objects.none()
+
+class MedicineBySideEffectView(generics.ListAPIView):
+    "`"`"Search medicines by side effects or warnings (e.g. check if a medicine causes drowsiness)"`"`"
+    serializer_class = MedicineListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        effect = self.kwargs.get('effect', '')
+        if effect:
+            return Medicine.objects.filter(
+                Q(side_effects__icontains=effect) | Q(warnings__icontains=effect),
+                is_active=True
+            )
+        return Medicine.objects.none()
+
+class MedicineByCategoryView(generics.ListAPIView):
+    "`"`"Filter medicines strictly by a specific category (e.g. مسكنات, مضادات حيوية)"`"`"
+    serializer_class = MedicineListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        category_name = self.kwargs.get('category', '')
+        if category_name:
+            return Medicine.objects.filter(
+                category__icontains=category_name,
+                is_active=True
+            )
+        return Medicine.objects.none()
+
+class MedicineByManufacturerView(generics.ListAPIView):
+    "`"`"Filter medicines strictly by Manufacturer/Company name"`"`"
+    serializer_class = MedicineListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        manufacturer_name = self.kwargs.get('manufacturer', '')
+        if manufacturer_name:
+            return Medicine.objects.filter(
+                manufacturer__icontains=manufacturer_name,
+                is_active=True
+            )
+        return Medicine.objects.none()
+
+class ClearUserScanHistoryView(generics.DestroyAPIView):
+    "`"`"Wipes out the entire scan/upload history for the current user"`"`"
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return ImageUpload.objects.filter(uploaded_by=self.request.user)
+    
+    def delete(self, request, *args, **kwargs):
+        count, _ = self.get_queryset().delete()
+        return Response({"message": f"Successfully deleted {count} scan records."}, status=status.HTTP_204_NO_CONTENT)
+
+class TopMedicinesView(generics.ListAPIView):
+    "`"`"Returns a list of the 10 most recently added or updated medicines"`"`"
+    serializer_class = MedicineListSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get_queryset(self):
+        return Medicine.objects.filter(is_active=True).order_by('-created_at')[:10]

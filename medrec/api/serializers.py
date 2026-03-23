@@ -10,6 +10,8 @@ class MedicineSerializer(serializers.ModelSerializer):
         model = Medicine
         fields = (
             'id', 'code', 'name_ar', 'name_en', 'scientific_name',
+            'active_ingredients', 'concentration', 'alternatives', 
+            'region_availability', 'packaging',
             'manufacturer', 'description_ar', 'description_en',
             'dosage', 'side_effects', 'warnings', 'category',
             'price', 'image', 'image_url', 'is_active',
@@ -28,7 +30,7 @@ class MedicineListSerializer(serializers.ModelSerializer):
     """Simplified serializer for medicine listing"""
     class Meta:
         model = Medicine
-        fields = ('id', 'code', 'name_ar', 'name_en', 'category', 'price')
+        fields = ('id', 'code', 'name_ar', 'name_en', 'category', 'price', 'active_ingredients', 'concentration')
 
 
 class ImageUploadSerializer(serializers.ModelSerializer):
